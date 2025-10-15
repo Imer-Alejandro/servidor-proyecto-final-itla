@@ -1,6 +1,6 @@
 import { Router } from "express";
 import asistenciaController from "../controllers/asistencia.controller.js";
-// import authMiddleware from "../middlewares/auth.middleware.js"; // Descomenta si tienes auth
+// import authMiddleware from "../middlewares/auth.middleware.js"
 
 const router = Router();
 
