@@ -11,6 +11,7 @@ import inscripcionRoutes from "./inscripcion.routes.js";
 import pagoRoutes from "./pago.routes.js";
 
 const router = Router();
+
 router.use("/usuarios", usuarioRoutes);
 router.use("/cursos", cursoRoutes);
 router.use("/secciones", seccionRoutes);
