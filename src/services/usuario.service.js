@@ -1,6 +1,10 @@
 import { pool } from "../config/db.js";
 import bcrypt from "bcryptjs";
 
+function generarMatricula() {
+  return Math.floor(10000 + Math.random() * 90000).toString();
+}
+
 export const crearUsuario = async ({
   nombre,
   apellido,
@@ -8,6 +12,9 @@ export const crearUsuario = async ({
   password,
   rol,
   telefono,
+  especialidad,
+  titulo_academico,
+  matricula,
 }) => {
   // 1️⃣ Verificar si el correo ya existe
   const [existe] = await pool
@@ -18,14 +25,50 @@ export const crearUsuario = async ({
     throw new Error("El correo electrónico ya está registrado");
   }
 
-  // 2️⃣ Encriptar la contraseña
+  // 2️⃣ Validaciones por rol
+  if (rol === "DOCENTE") {
+    if (!especialidad || !titulo_academico) {
+      throw new Error(
+        "La especialidad y título académico son requeridos para docentes"
+      );
+    }
+  }
+
+  if (rol === "ESTUDIANTE") {
+    // Generar matrícula si no se envía
+    if (!matricula || matricula.trim() === "") {
+      matricula = generarMatricula();
+    }
+
+    // Validar si matrícula ya existe
+    const [matExistente] = await pool
+      .promise()
+      .query(`SELECT usuario_id FROM Usuario WHERE matricula = ?`, [matricula]);
+
+    if (matExistente.length > 0) {
+      throw new Error("La matrícula ya está registrada, intenta otra");
+    }
+  }
+
+  // 3️⃣ Encriptar contraseña
   const hash = await bcrypt.hash(password, 10);
 
-  // 3️⃣ Insertar el nuevo usuario
+  // 4️⃣ Insertar usuario según el rol
   const [result] = await pool.promise().query(
-    `INSERT INTO Usuario (nombre, apellido, email, password_hash, rol, telefono)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-    [nombre, apellido, email, hash, rol, telefono]
+    `INSERT INTO Usuario 
+      (nombre, apellido, email, password_hash, rol, telefono, especialidad, titulo_academico, matricula)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      nombre,
+      apellido,
+      email,
+      hash,
+      rol,
+      telefono || null,
+      rol === "DOCENTE" ? especialidad : null,
+      rol === "DOCENTE" ? titulo_academico : null,
+      rol === "ESTUDIANTE" ? matricula : null,
+    ]
   );
 
   return {
@@ -34,6 +77,9 @@ export const crearUsuario = async ({
     apellido,
     email,
     rol,
+    matricula: rol === "ESTUDIANTE" ? matricula : undefined,
+    especialidad: rol === "DOCENTE" ? especialidad : undefined,
+    titulo_academico: rol === "DOCENTE" ? titulo_academico : undefined,
   };
 };
 
