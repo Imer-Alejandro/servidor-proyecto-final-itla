@@ -104,11 +104,24 @@ export const login = async ({ email, password }) => {
 };
 
 export const obtenerTodos = async () => {
-  const [rows] = await pool
-    .promise()
-    .query(
-      `SELECT usuario_id, nombre, apellido, email, rol, estado FROM Usuario`
-    );
+  const [rows] = await pool.promise().query(
+    `SELECT 
+        usuario_id,
+        nombre,
+        apellido,
+        email,
+        rol,
+        estado,
+        telefono,
+        -- Campos para estudiantes
+        matricula,
+        curso_actual_id,
+        -- Campos para docentes
+        especialidad,
+        titulo_academico
+     FROM Usuario`
+  );
+
   return rows;
 };
 
