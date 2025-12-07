@@ -78,7 +78,7 @@ export const actualizarSeccion = async (id, datos) => {
     if (!docenteRows.length)
       throw new Error("El docente especificado no existe");
 
-    if (docenteRows[0].rol !== "docente")
+    if (docenteRows[0].rol?.toUpperCase() !== "DOCENTE")
       throw new Error("El usuario seleccionado no tiene rol de docente");
   }
 
