@@ -1,83 +1,58 @@
 import * as inscripcionService from "../services/inscripcion.service.js";
 
-// Obtener todas
 export const obtenerInscripciones = async (_, res) => {
   try {
-    const inscripciones = await inscripcionService.obtenerInscripciones();
-    res.json(inscripciones);
+    res.json(await inscripcionService.obtenerInscripciones());
   } catch (error) {
-    res.status(500).json({
-      message: "Error obteniendo inscripciones",
-      error: error.message,
-    });
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Obtener por estudiante
 export const obtenerPorEstudiante = async (req, res) => {
   try {
-    const { id } = req.params;
-    const inscripciones = await inscripcionService.obtenerPorEstudiante(id);
-    res.json(inscripciones);
+    res.json(await inscripcionService.obtenerPorEstudiante(req.params.id));
   } catch (error) {
-    res.status(500).json({
-      message: "Error obteniendo inscripciones del estudiante",
-      error: error.message,
-    });
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Obtener por curso
 export const obtenerPorCurso = async (req, res) => {
   try {
-    const { id } = req.params;
-    const inscripciones = await inscripcionService.obtenerPorCurso(id);
-    res.json(inscripciones);
+    res.json(await inscripcionService.obtenerPorCurso(req.params.id));
   } catch (error) {
-    res.status(500).json({
-      message: "Error obteniendo inscripciones del curso",
-      error: error.message,
-    });
+    console.error(error);
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Crear
 export const crearInscripcion = async (req, res) => {
   try {
     await inscripcionService.crearInscripcion(req.body);
-    res.json({ message: "Inscripción creada exitosamente" });
+    res.status(201).json({ message: "Inscripción creada" });
   } catch (error) {
-    res.status(500).json({
-      message: "Error al crear inscripción",
-      error: error.message,
-    });
+    console.error(error);
+    res.status(400).json({ error: error.message });
   }
 };
 
-// Actualizar
 export const actualizarInscripcion = async (req, res) => {
   try {
-    const { id } = req.params;
-    await inscripcionService.actualizarInscripcion(id, req.body);
+    await inscripcionService.actualizarInscripcion(req.params.id, req.body);
     res.json({ message: "Inscripción actualizada" });
   } catch (error) {
-    res.status(500).json({
-      message: "Error al actualizar inscripción",
-      error: error.message,
-    });
+    console.error(error);
+    res.status(400).json({ error: error.message });
   }
 };
 
-// Eliminar
 export const eliminarInscripcion = async (req, res) => {
   try {
-    const { id } = req.params;
-    await inscripcionService.eliminarInscripcion(id);
+    await inscripcionService.eliminarInscripcion(req.params.id);
     res.json({ message: "Inscripción eliminada" });
   } catch (error) {
-    res.status(500).json({
-      message: "Error al eliminar inscripción",
-      error: error.message,
-    });
+    console.error(error);
+    res.status(400).json({ error: error.message });
   }
 };
