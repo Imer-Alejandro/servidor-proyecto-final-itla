@@ -17,8 +17,7 @@ export const obtenerInscripciones = async (_, res) => {
 export const obtenerPorEstudiante = async (req, res) => {
   try {
     const { id } = req.params;
-    const inscripciones =
-      await inscripcionService.obtenerInscripcionesPorEstudiante(id);
+    const inscripciones = await inscripcionService.obtenerPorEstudiante(id);
     res.json(inscripciones);
   } catch (error) {
     res.status(500).json({
@@ -32,9 +31,7 @@ export const obtenerPorEstudiante = async (req, res) => {
 export const obtenerPorCurso = async (req, res) => {
   try {
     const { id } = req.params;
-    const inscripciones = await inscripcionService.obtenerInscripcionesPorCurso(
-      id
-    );
+    const inscripciones = await inscripcionService.obtenerPorCurso(id);
     res.json(inscripciones);
   } catch (error) {
     res.status(500).json({
