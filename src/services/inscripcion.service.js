@@ -4,15 +4,17 @@ import { pool } from "../config/db.js";
 export const obtenerInscripciones = async () => {
   const [rows] = await pool.promise().query(`
     SELECT 
-      i.*, 
-      u.nombre AS nombre_estudiante, 
-      u.apellido AS apellido_estudiante, 
-      s.nombre AS nombre_seccion
+      i.*,
+      u.nombre AS nombre_estudiante,
+      u.apellido AS apellido_estudiante,
+      c.nombre AS nombre_curso,
+      s.capacidad_maxima,
+      s.estado AS estado_seccion
     FROM Inscripcion i
     JOIN Usuario u ON i.estudiante_id = u.usuario_id
     JOIN Seccion s ON i.seccion_id = s.seccion_id
+    JOIN Curso c ON s.curso_id = c.curso_id
   `);
-
   return rows;
 };
 
@@ -21,15 +23,16 @@ export const obtenerPorEstudiante = async (id) => {
   const [rows] = await pool.promise().query(
     `
     SELECT 
-      i.*, 
-      s.nombre AS nombre_seccion
+      i.*,
+      c.nombre AS nombre_curso,
+      s.estado AS estado_seccion
     FROM Inscripcion i
     JOIN Seccion s ON i.seccion_id = s.seccion_id
+    JOIN Curso c ON s.curso_id = c.curso_id
     WHERE i.estudiante_id = ?
     `,
     [id]
   );
-
   return rows;
 };
 
@@ -38,7 +41,7 @@ export const obtenerPorCurso = async (id) => {
   const [rows] = await pool.promise().query(
     `
     SELECT 
-      i.*, 
+      i.*,
       u.nombre AS nombre_estudiante,
       u.apellido AS apellido_estudiante
     FROM Inscripcion i
@@ -48,7 +51,6 @@ export const obtenerPorCurso = async (id) => {
     `,
     [id]
   );
-
   return rows;
 };
 
