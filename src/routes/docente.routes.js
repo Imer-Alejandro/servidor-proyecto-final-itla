@@ -9,11 +9,8 @@ import {
 } from "../controllers/docente.controller.js";
 
 const router = Router();
-
-// Obtener lista completa de docentes
 router.get("/", obtenerDocentes);
 
-// Obtener un docente por ID
 router.get("/:id", obtenerDocente);
 
 // Secciones asignadas a un docente
