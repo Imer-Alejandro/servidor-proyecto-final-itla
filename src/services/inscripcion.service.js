@@ -106,13 +106,26 @@ export const crearInscripcion = async ({ estudiante_id, seccion_id }) => {
 };
 
 // Actualizar estado
-export const actualizarInscripcion = async (id, { estado }) => {
-  await pool
-    .promise()
-    .query(`UPDATE Inscripcion SET estado = ? WHERE inscripcion_id = ?`, [
-      estado,
-      id,
-    ]);
+export const actualizarInscripcion = async (id, { estado, nota_final }) => {
+  // Validar nota
+  if (nota_final < 0 || nota_final > 100) {
+    throw new Error("La nota debe estar entre 0 y 100");
+  }
+
+  // Determinar si aprueba (ej: >=70)
+  const aprobado = nota_final >= 70 ? 1 : 0;
+
+  await pool.promise().query(
+    `
+    UPDATE Inscripcion 
+    SET 
+      estado = ?,
+      nota_final = ?,
+      aprobado = ?
+    WHERE inscripcion_id = ?
+    `,
+    [estado, nota_final, aprobado, id]
+  );
 };
 
 // Eliminar

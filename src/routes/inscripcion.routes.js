@@ -4,7 +4,7 @@ import {
   obtenerPorEstudiante,
   obtenerPorCurso,
   crearInscripcion,
-  actualizarInscripcion,
+  actualizarInscripcionController,
   eliminarInscripcion,
 } from "../controllers/inscripcion.controller.js";
 
@@ -14,7 +14,7 @@ router.get("/", obtenerInscripciones);
 router.get("/estudiante/:id", obtenerPorEstudiante);
 router.get("/curso/:id", obtenerPorCurso);
 router.post("/", crearInscripcion);
-router.put("/:id", actualizarInscripcion);
+router.put("/:id", actualizarInscripcionController);
 router.delete("/:id", eliminarInscripcion);
 
 export default router;
