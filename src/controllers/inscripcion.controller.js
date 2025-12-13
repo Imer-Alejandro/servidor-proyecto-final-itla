@@ -37,12 +37,15 @@ export const crearInscripcion = async (req, res) => {
   }
 };
 
-export const actualizarInscripcion = async (req, res) => {
+export const actualizarInscripcionController = async (req, res) => {
   try {
-    await inscripcionService.actualizarInscripcion(req.params.id, req.body);
-    res.json({ message: "Inscripción actualizada" });
+    const { id } = req.params;
+    const { estado, nota_final } = req.body;
+
+    await actualizarInscripcion(id, { estado, nota_final });
+
+    res.json({ message: "Inscripción actualizada correctamente" });
   } catch (error) {
-    console.error(error);
     res.status(400).json({ error: error.message });
   }
 };

@@ -7,38 +7,21 @@ import {
   pagos,
 } from "../controllers/estudiante.controller.js";
 
-import { verificarRol, permitirRoles } from "../middlewares/auth.middleware.js";
-
 const router = Router();
 
 // Solo ADMIN puede listar todos los estudiantes
-router.get("/", verificarRol, permitirRoles("ADMIN"), obtenerEstudiantes);
+router.get("/", obtenerEstudiantes);
 
 // ADMIN y el propio ESTUDIANTE pueden ver su perfil
-router.get(
-  "/:id",
-  verificarRol,
-  permitirRoles("ADMIN", "ESTUDIANTE"),
-  obtenerEstudiante
-);
+router.get("/:id", obtenerEstudiante);
 
 // Inscripción (solo ADMIN puede inscribir manualmente)
-router.post("/inscribir", verificarRol, permitirRoles("ADMIN"), inscribir);
+router.post("/inscribir", inscribir);
 
 // Historial académico (ESTUDIANTE ve el suyo, ADMIN puede ver todos)
-router.get(
-  "/:id/historial",
-  verificarRol,
-  permitirRoles("ADMIN", "ESTUDIANTE"),
-  historial
-);
+router.get("/:id/historial", historial);
 
 // Pagos del estudiante
-router.get(
-  "/:id/pagos",
-  verificarRol,
-  permitirRoles("ADMIN", "ESTUDIANTE"),
-  pagos
-);
+router.get("/:id/pagos", pagos);
 
 export default router;
