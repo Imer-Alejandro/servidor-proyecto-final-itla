@@ -8,9 +8,7 @@ export const registrarUsuario = async (req, res) => {
       data: nuevoUsuario,
     });
   } catch (error) {
-    res.status(400).json({
-      message: error.message,
-    });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -22,9 +20,7 @@ export const loginUsuario = async (req, res) => {
       data: userData,
     });
   } catch (error) {
-    res.status(401).json({
-      message: error.message,
-    });
+    res.status(401).json({ message: error.message });
   }
 };
 
@@ -32,52 +28,38 @@ export const obtenerUsuarios = async (_, res) => {
   try {
     const usuarios = await usuarioService.obtenerTodos();
     res.json(usuarios);
-  } catch (error) {
-    res.status(500).json({
-      message: "Error al obtener usuarios",
-    });
+  } catch {
+    res.status(500).json({ message: "Error al obtener usuarios" });
   }
 };
 
 export const obtenerUsuarioPorId = async (req, res) => {
   try {
     const usuario = await usuarioService.obtenerPorId(req.params.id);
-    if (!usuario) {
-      return res.status(404).json({
-        message: "Usuario no encontrado",
-      });
-    }
+    if (!usuario)
+      return res.status(404).json({ message: "Usuario no encontrado" });
+
     res.json(usuario);
   } catch {
-    res.status(500).json({
-      message: "Error al obtener usuario",
-    });
+    res.status(500).json({ message: "Error al obtener usuario" });
   }
 };
 
 export const actualizarUsuario = async (req, res) => {
   try {
     await usuarioService.actualizar(req.params.id, req.body);
-    res.json({
-      message: "Usuario actualizado correctamente",
-    });
+    res.json({ message: "Usuario actualizado correctamente" });
   } catch {
-    res.status(500).json({
-      message: "Error al actualizar usuario",
-    });
+    res.status(500).json({ message: "Error al actualizar usuario" });
   }
 };
 
 export const eliminarUsuario = async (req, res) => {
   try {
     await usuarioService.eliminar(req.params.id);
-    res.json({
-      message: "Usuario eliminado correctamente",
-    });
+    res.json({ message: "Usuario eliminado correctamente" });
   } catch {
-    res.status(500).json({
-      message: "Error al eliminar usuario",
-    });
+    res.status(500).json({ message: "Error al eliminar usuario" });
   }
 };
 
