@@ -1,27 +1,22 @@
 import { Router } from "express";
 import {
   registrarUsuario,
+  loginUsuario,
   obtenerUsuarios,
   obtenerUsuarioPorId,
   actualizarUsuario,
   eliminarUsuario,
-  loginUsuario,
   obtenerUsuariosPorRol,
-} from "../controllers/usuario.controllers.js";
-
-import { verificarRol, permitirRoles } from "../middlewares/auth.middleware.js";
+} from "../controllers/usuario.controller.js";
 
 const router = Router();
 
-// rutas publicas
-
 router.post("/registro", registrarUsuario);
 router.post("/login", loginUsuario);
-
 router.get("/", obtenerUsuarios);
 router.get("/:id", obtenerUsuarioPorId);
+router.get("/rol/:rol", obtenerUsuariosPorRol);
 router.put("/:id", actualizarUsuario);
 router.delete("/:id", eliminarUsuario);
-router.get("/rol/:rol", obtenerUsuariosPorRol);
 
 export default router;

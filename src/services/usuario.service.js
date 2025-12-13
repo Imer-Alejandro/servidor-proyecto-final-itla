@@ -5,17 +5,24 @@ function generarMatricula() {
   return Math.floor(10000 + Math.random() * 90000).toString();
 }
 
-export const crearUsuario = async ({
-  nombre,
-  apellido,
-  email,
-  password,
-  rol,
-  telefono,
-  especialidad,
-  titulo_academico,
-  matricula,
-}) => {
+export const crearUsuario = async (data) => {
+  let {
+    nombre,
+    apellido,
+    email,
+    password,
+    rol,
+    telefono,
+    especialidad,
+    titulo_academico,
+    matricula,
+  } = data;
+
+  // 🔴 Validaciones básicas
+  if (!nombre || !apellido || !email || !password || !rol) {
+    throw new Error("Todos los campos obligatorios deben ser completados");
+  }
+
   // 1️⃣ Verificar si el correo ya existe
   const [existe] = await pool
     .promise()
@@ -29,18 +36,16 @@ export const crearUsuario = async ({
   if (rol === "DOCENTE") {
     if (!especialidad || !titulo_academico) {
       throw new Error(
-        "La especialidad y título académico son requeridos para docentes"
+        "La especialidad y el título académico son requeridos para docentes"
       );
     }
   }
 
   if (rol === "ESTUDIANTE") {
-    // Generar matrícula si no se envía
     if (!matricula || matricula.trim() === "") {
       matricula = generarMatricula();
     }
 
-    // Validar si matrícula ya existe
     const [matExistente] = await pool
       .promise()
       .query(`SELECT usuario_id FROM Usuario WHERE matricula = ?`, [matricula]);
@@ -51,18 +56,18 @@ export const crearUsuario = async ({
   }
 
   // 3️⃣ Encriptar contraseña
-  const hash = await bcrypt.hash(password, 10);
+  const password_hash = await bcrypt.hash(password, 10);
 
-  // 4️⃣ Insertar usuario según el rol
+  // 4️⃣ Insertar usuario
   const [result] = await pool.promise().query(
     `INSERT INTO Usuario 
-      (nombre, apellido, email, password_hash, rol, telefono, especialidad, titulo_academico, matricula)
+    (nombre, apellido, email, password_hash, rol, telefono, especialidad, titulo_academico, matricula)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       nombre,
       apellido,
       email,
-      hash,
+      password_hash,
       rol,
       telefono || null,
       rol === "DOCENTE" ? especialidad : null,
@@ -77,23 +82,33 @@ export const crearUsuario = async ({
     apellido,
     email,
     rol,
-    matricula: rol === "ESTUDIANTE" ? matricula : undefined,
-    especialidad: rol === "DOCENTE" ? especialidad : undefined,
-    titulo_academico: rol === "DOCENTE" ? titulo_academico : undefined,
+    telefono,
+    matricula: rol === "ESTUDIANTE" ? matricula : null,
+    especialidad: rol === "DOCENTE" ? especialidad : null,
+    titulo_academico: rol === "DOCENTE" ? titulo_academico : null,
   };
 };
 
 export const login = async ({ email, password }) => {
+  if (!email || !password) {
+    throw new Error("Correo y contraseña son obligatorios");
+  }
+
   const [rows] = await pool
     .promise()
     .query(`SELECT * FROM Usuario WHERE email = ?`, [email]);
-  if (rows.length === 0) throw new Error("Correo no registrado");
+
+  if (rows.length === 0) {
+    throw new Error("Correo no registrado");
+  }
 
   const user = rows[0];
-  const valid = await bcrypt.compare(password, user.password_hash);
-  if (!valid) throw new Error("Contraseña incorrecta");
+  const valido = await bcrypt.compare(password, user.password_hash);
 
-  // ✅ En lugar de JWT, devolvemos los datos del usuario y su rol
+  if (!valido) {
+    throw new Error("Contraseña incorrecta");
+  }
+
   return {
     usuario_id: user.usuario_id,
     nombre: user.nombre,
@@ -104,24 +119,21 @@ export const login = async ({ email, password }) => {
 };
 
 export const obtenerTodos = async () => {
-  const [rows] = await pool.promise().query(
-    `SELECT 
-        usuario_id,
-        nombre,
-        apellido,
-        email,
-        rol,
-        estado,
-        telefono,
-        -- Campos para estudiantes
-        matricula,
-        curso_actual_id,
-        -- Campos para docentes
-        especialidad,
-        titulo_academico
-     FROM Usuario`
-  );
-
+  const [rows] = await pool.promise().query(`
+    SELECT 
+      usuario_id,
+      nombre,
+      apellido,
+      email,
+      rol,
+      estado,
+      telefono,
+      matricula,
+      curso_actual_id,
+      especialidad,
+      titulo_academico
+    FROM Usuario
+  `);
   return rows;
 };
 
@@ -131,21 +143,25 @@ export const obtenerPorId = async (id) => {
     .query(`SELECT * FROM Usuario WHERE usuario_id = ?`, [id]);
   return rows[0];
 };
+
 export const obtenerUsuariosPorRol = async (rol) => {
   const [rows] = await pool
     .promise()
     .query(`SELECT * FROM Usuario WHERE rol = ?`, [rol]);
-  return rows; // devuelve todos los usuarios del rol
+  return rows;
 };
 
 export const actualizar = async (id, datos) => {
   const campos = [];
   const valores = [];
-  for (let key in datos) {
+
+  for (const key in datos) {
     campos.push(`${key} = ?`);
     valores.push(datos[key]);
   }
+
   valores.push(id);
+
   await pool
     .promise()
     .query(
